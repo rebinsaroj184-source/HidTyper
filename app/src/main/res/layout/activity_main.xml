@@ -1,15 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="24dp">
 
     <TextView
         android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Status: Not registered"
+        android:text="⚪ Stopped: Not started yet"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/progressText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Progress: -"
         android:textSize="16sp"
         android:layout_marginBottom="16dp" />
 
@@ -17,61 +30,78 @@
         android:id="@+id/registerBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="1. Register as HID Keyboard" />
+        android:text="Grant Bluetooth / Notification Permissions" />
 
     <Button
         android:id="@+id/pairBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="2. Show Paired Devices" />
+        android:text="How to Connect (info)" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start number"
+        android:textSize="13sp"
+        android:layout_marginTop="16dp" />
     <EditText
         android:id="@+id/startNum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Start number"
         android:inputType="number"
-        android:text="1"
-        android:layout_marginTop="16dp" />
+        android:text="1" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="End number"
+        android:textSize="13sp"
+        android:layout_marginTop="8dp" />
     <EditText
         android:id="@+id/endNum"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="End number"
         android:inputType="number"
-        android:text="1000000"
-        android:layout_marginTop="8dp" />
+        android:text="1000000" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delay per number (ms)"
+        android:textSize="13sp"
+        android:layout_marginTop="8dp" />
     <EditText
         android:id="@+id/delayMs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Delay per number (ms)"
         android:inputType="number"
-        android:text="150"
-        android:layout_marginTop="8dp" />
+        android:text="150" />
 
     <Button
         android:id="@+id/startBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="3. Start Typing" />
+        android:layout_marginTop="20dp"
+        android:text="▶ Start / Resume Typing" />
 
     <Button
         android:id="@+id/stopBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Stop" />
+        android:text="⏹ Stop (saves position)" />
 
     <TextView
-        android:id="@+id/progressText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Progress: -" />
+        android:text="Note: Stop karne par jahan tak type ho chuka hai wahi 'Start number' me apne aap aa jayega agla baar app kholne par."
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>
+</ScrollView>

@@ -27,6 +27,13 @@ class TypingService : Service() {
         const val EXTRA_END_VAL = "endVal"
         const val EXTRA_STATUS_TEXT = "statusText"
 
+        const val PREFS_NAME = "hidtyper_prefs"
+        const val KEY_CURRENT = "key_current"
+        const val KEY_END = "key_end"
+        const val KEY_DELAY = "key_delay"
+        const val KEY_STATUS = "key_status"
+        const val KEY_RUNNING = "key_running"
+
         @Volatile var isRunning = false
         @Volatile var isPaused = false
     }
@@ -105,11 +112,13 @@ class TypingService : Service() {
                 acquireWakeLock()
                 isRunning = true
                 isPaused = false
+                savePrefs(true, "Starting...")
                 connectHidProfile()
                 startLoop()
             }
             ACTION_STOP -> {
                 isRunning = false
+                savePrefs(false, "Stopped at $currentNumber")
                 releaseWakeLock()
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -164,6 +173,7 @@ class TypingService : Service() {
             }
             isRunning = false
             broadcastStatus("Done or stopped at $currentNumber")
+            savePrefs(false, "Done or stopped at $currentNumber")
             releaseWakeLock()
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
@@ -196,12 +206,30 @@ class TypingService : Service() {
         i.putExtra(EXTRA_CURRENT, current)
         i.putExtra(EXTRA_END_VAL, end)
         sendBroadcast(i)
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit()
+            .putInt(KEY_CURRENT, current)
+            .putInt(KEY_END, end)
+            .apply()
     }
 
     private fun broadcastStatus(text: String) {
         val i = Intent(BROADCAST_STATUS)
         i.putExtra(EXTRA_STATUS_TEXT, text)
         sendBroadcast(i)
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_STATUS, text).apply()
+    }
+
+    private fun savePrefs(running: Boolean, status: String) {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit()
+            .putBoolean(KEY_RUNNING, running)
+            .putString(KEY_STATUS, status)
+            .putInt(KEY_CURRENT, currentNumber)
+            .putInt(KEY_END, endNumber)
+            .putLong(KEY_DELAY, delayMs)
+            .apply()
     }
 
     private fun acquireWakeLock() {

@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     private val statusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val text = intent?.getStringExtra(TypingService.EXTRA_STATUS_TEXT) ?: ""
-            statusText.text = "Status: $text"
+            applyStatusText(text)
         }
     }
 
@@ -63,10 +63,17 @@ class MainActivity : AppCompatActivity() {
 
         registerBtn.setOnClickListener { requestPermissionsAndProceed() }
         pairBtn.setOnClickListener {
-            Toast.makeText(this, "Permissions ready hone ke baad seedha Start Typing dabao - auto-connect ho jayega.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Permissions ready hone ke baad seedha Start/Resume dabao.", Toast.LENGTH_LONG).show()
         }
         startBtn.setOnClickListener { startTyping() }
         stopBtn.setOnClickListener { stopTyping() }
+
+        loadSavedState()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadSavedState()
     }
 
     override fun onStart() {
@@ -86,6 +93,28 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
         try { unregisterReceiver(progressReceiver) } catch (e: Exception) { }
         try { unregisterReceiver(statusReceiver) } catch (e: Exception) { }
+    }
+
+    private fun loadSavedState() {
+        val prefs = getSharedPreferences(TypingService.PREFS_NAME, Context.MODE_PRIVATE)
+        val running = prefs.getBoolean(TypingService.KEY_RUNNING, false)
+        val current = prefs.getInt(TypingService.KEY_CURRENT, 0)
+        val end = prefs.getInt(TypingService.KEY_END, 0)
+        val savedStatus = prefs.getString(TypingService.KEY_STATUS, null)
+
+        if (savedStatus != null) applyStatusText(savedStatus)
+        if (end > 0) progressText.text = "Progress: $current / $end"
+
+        if (!running && current > 0) {
+            startNum.setText((current + 1).toString())
+            if (end > 0) endNum.setText(end.toString())
+        }
+    }
+
+    private fun applyStatusText(text: String) {
+        val running = TypingService.isRunning
+        val prefix = if (running) "🟢 Running (background OK): " else "⚪ Stopped: "
+        statusText.text = prefix + text
     }
 
     private fun hasPerm(p: String): Boolean =
@@ -118,13 +147,13 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra(TypingService.EXTRA_END, e)
         intent.putExtra(TypingService.EXTRA_DELAY, d)
         ContextCompat.startForegroundService(this, intent)
-        statusText.text = "Status: Service started"
+        applyStatusText("Starting from $s...")
     }
 
     private fun stopTyping() {
         val intent = Intent(this, TypingService::class.java)
         intent.action = TypingService.ACTION_STOP
         startService(intent)
-        statusText.text = "Status: Stopped"
+        statusText.postDelayed({ loadSavedState() }, 300)
     }
 }
