@@ -33,6 +33,7 @@ class TypingService : Service() {
         const val KEY_DELAY = "key_delay"
         const val KEY_STATUS = "key_status"
         const val KEY_RUNNING = "key_running"
+        const val KEY_WIDTH = "key_width"
 
         @Volatile var isRunning = false
         @Volatile var isPaused = false
@@ -49,6 +50,7 @@ class TypingService : Service() {
     private var currentNumber = 0
     private var endNumber = 0
     private var delayMs = 150L
+    private var digitWidth = 0
 
     private val descriptor: ByteArray = byteArrayOf(
         0x05.toByte(), 0x01.toByte(), 0x09.toByte(), 0x06.toByte(),
@@ -105,7 +107,9 @@ class TypingService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> {
-                currentNumber = intent.getIntExtra(EXTRA_START, 1)
+                val startStr = intent.getStringExtra(EXTRA_START) ?: "1"
+                currentNumber = startStr.toIntOrNull() ?: 1
+                digitWidth = if (startStr.length > currentNumber.toString().length) startStr.length else 0
                 endNumber = intent.getIntExtra(EXTRA_END, 1000000)
                 delayMs = intent.getLongExtra(EXTRA_DELAY, 150L)
                 startForeground(NOTIF_ID, buildNotification("Starting..."))
@@ -167,7 +171,9 @@ class TypingService : Service() {
                 sendNumber(connectedDevice!!, currentNumber)
                 val n = currentNumber
                 broadcastProgress(n, endNumber)
-                updateNotification("Typing: $n / $endNumber")
+                if (n % 20 == 0 || n == endNumber) {
+                    updateNotification("Typing: $n / $endNumber")
+                }
                 currentNumber++
                 try { Thread.sleep(delayMs) } catch (e: InterruptedException) { }
             }
@@ -186,7 +192,8 @@ class TypingService : Service() {
     }
 
     private fun sendNumber(device: BluetoothDevice, number: Int) {
-        for (c in number.toString()) sendKey(device, keycodeForDigit(c))
+        val numStr = if (digitWidth > 0) number.toString().padStart(digitWidth, '0') else number.toString()
+        for (c in numStr) sendKey(device, keycodeForDigit(c))
         sendKey(device, 0x28)
     }
 

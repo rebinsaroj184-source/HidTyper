@@ -137,17 +137,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startTyping() {
-        val s = startNum.text.toString().toIntOrNull() ?: 1
+        val sStr = startNum.text.toString()
         val e = endNum.text.toString().toIntOrNull() ?: 1000000
         val d = delayMs.text.toString().toLongOrNull() ?: 150L
 
         val intent = Intent(this, TypingService::class.java)
         intent.action = TypingService.ACTION_START
-        intent.putExtra(TypingService.EXTRA_START, s)
+        intent.putExtra(TypingService.EXTRA_START, sStr)
         intent.putExtra(TypingService.EXTRA_END, e)
         intent.putExtra(TypingService.EXTRA_DELAY, d)
         ContextCompat.startForegroundService(this, intent)
-        applyStatusText("Starting from $s...")
+        applyStatusText("Starting from $sStr...")
     }
 
     private fun stopTyping() {
